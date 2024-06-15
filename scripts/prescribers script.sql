@@ -8,36 +8,62 @@
 
     
 -- --     b. Repeat the above, but this time report the nppes_provider_first_name, nppes_provider_last_org_name,  specialty_description, and the total number of claims.
--- Select 
--- 	p2.nppes_provider_first_name, 
--- 	p2.nppes_provider_last_org_name,  
--- 	p2.specialty_description, 
--- 	sum(p1.total_claim_count)as number_of_claims 
--- From prescription as p1
--- Left Join prescriber as p2
--- on p1.npi = p2.npi
--- Group by 
--- 	p2.nppes_provider_first_name, 
--- 	p2.nppes_provider_last_org_name,  
--- 	p2.specialty_description
--- Order by number_of_claims DESC
+ -- Select 
+	-- p2.nppes_provider_first_name, 
+ -- 	p2.nppes_provider_last_org_name,  
+ -- 	p2.specialty_description, 
+	-- sum(p1.total_claim_count)as number_of_claims 
+ -- From prescription as p1
+ -- Left Join prescriber as p2
+ -- on p1.npi = p2.npi
+ -- Group by 
+ -- 	p2.nppes_provider_first_name, 
+ -- 	p2.nppes_provider_last_org_name,  
+	-- p2.specialty_description
+ -- Order by number_of_claims DESC
 -- 2. 
 --     a. Which specialty had the most total number of claims (totaled over all drugs)?
 
--- Select 
--- p2.specialty_description, 
--- sum(p1.total_claim_count)as number_of_claims 
+--  Select 
+--  p2.specialty_description, 
+-- sum(p1.total_claim_count):: money as number_of_claims
 -- From prescription as p1
--- Left Join prescriber as p2
--- on p1.npi = p2.npi
--- Group by p2.specialty_description
--- Order by number_of_claims DESC
+-- inner Join prescriber as p2
+-- on p1.npi= p2.npi
+--  Group by p2.specialty_description
+--  Order by number_of_claims DESC
 
 --     b. Which specialty had the most total number of claims for opioids?
+-- Select 
+--  p2.specialty_description, 
+-- sum(p1.total_claim_count) as total_claim_count
+-- From prescription as p1
+-- Join prescriber as p2 
+-- 	 using (npi)
+-- Join drug as d 
+-- 	 using (drug_name)
+-- where d.opioid_drug_flag = 'Y'
+--  Group by p2.specialty_description
+--  Order by total_claims_count DESC
 
 
 
 --     c. **Challenge Question:** Are there any specialties that appear in the prescriber table that have no associated prescriptions in the prescription table?
+-- SELECT
+
+-- 	prescriber.specialty_description,
+
+-- 	COUNT(prescription.*)
+
+-- FROM prescriber
+
+-- LEFT JOIN prescription
+
+-- 	ON prescriber.npi = prescription.npi
+
+-- GROUP BY 1
+
+-- ORDER BY 2, 1
 
 --     d. **Difficult Bonus:** *Do not attempt until you have solved all other problems!* For each specialty, report the percentage of total claims by that specialty which are for opioids. Which specialties have a high percentage of opioids?
 
@@ -46,27 +72,34 @@
 
 -- Select 
 -- 	d.generic_name,
--- 	sum(p.total_drug_cost)as total_drug_cost
--- From drug as d
--- Inner join prescription as p
--- On d.drug_name = p.drug_name
+-- 	sum(p.total_drug_cost):: money as total_drug_cost
+--  From drug as d
+--  Inner join prescription as p
+--  On d.drug_name = p.drug_name
 -- Group by d.generic_name
--- Order by total_drug_cost DESC
+--  Order by total_drug_cost DESC
+-- Limit 10;
 
 --     b. Which drug (generic_name) has the hightest total cost per day? **Bonus: Round your cost per day column to 2 decimal places. Google ROUND to see how this works.**
+-- Select Round (sum(prescription.total_drug_cost/sum prescription.total_day_supply),2)as drug_cost_per_day, drug.generic_name
+-- 	From prescription
+-- 	join drug
+-- 	using(drug_name)
+-- 	Group by drug_name
+-- 	Order by drug_cost_per_day
 
 -- 4. 
 --     a. For each drug in the drug table, return the drug name and then a column named 'drug_type' which says 'opioid' for drugs which have opioid_drug_flag = 'Y', says 'antibiotic' for those drugs which have antibiotic_drug_flag = 'Y', and says 'neither' for all other drugs. **Hint:** You may want to use a CASE expression for this. See https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-case/ 
 
--- Select 
--- 	drug_name,
---  Case 
---  		when opioid_drug_flag = 'Y' then 'opiod'
--- 		when antibiotic_drug_flag = 'Y' then 'antibiotic'
--- 		else 'neither'  
--- 		end as drug_type
-	
---   From drug
+ -- Select 
+ -- 	drug_name,
+ --  Case 
+ -- 		when opioid_drug_flag = 'Y' then 'opiod'
+	-- 	when antibiotic_drug_flag = 'Y' then 'antibiotic'
+ -- 		else 'neither'  
+ -- 		end as drug_type
+	-- From drug
+
 --     b. Building off of the query you wrote for part a, determine whether more was spent (total_drug_cost) on opioids or on antibiotics. Hint: Format the total costs as MONEYfor easier comparision.
 -- Select  
 --  	Sum(prescription.total_drug_cost),
@@ -90,7 +123,7 @@
 
 --     b. Which cbsa has the largest combined population? Which has the smallest? Report the CBSA name and total population.
 -- Select c.cbsaname,
--- 	max(p.population) as largest_population
+-- 	sum(p.population) as largest_population
 -- From 
 -- 	population as p
 -- join 
@@ -101,7 +134,7 @@
 
 --     c. What is the largest (in terms of population) county which is not included in a CBSA? Report the county name and population.
 -- Select c.cbsaname,
--- max(p.population) as largest_population
+-- sum(p.population) as largest_population
 -- From 
 -- 	population as p
 --  join 
@@ -113,7 +146,7 @@
 -- 6. 
 --     a. Find all rows in the prescription table where total_claims is at least 3000. Report the drug_name and the total_claim_count.
 
--- Select drug_name, total_claim_count
+--  Select drug_name, total_claim_count
 -- from prescription
 -- where total_claim_count > 3000 or total_claim_count = 3000
 
@@ -160,5 +193,35 @@
 -- 	specialty_description = 'Pain Management';
 
 --     b. Next, report the number of claims per drug per prescriber. Be sure to include all combinations, whether or not the prescriber had any claims. You should report the npi, the drug name, and the number of claims (total_claim_count).
-    
+--     Select 
+-- 	p.npi,
+-- 	d.drug_name,
+-- 	s.total_claim_count
+-- from prescriber as p	
+-- Cross join drug as d
+--  left join prescription as s
+-- 		on s.npi = p.npi 
+-- 		and d.drug_name= s.drug_name
+-- Where
+-- 	opioid_drug_flag = 'Y'
+-- 	and
+-- 	nppes_provider_city = 'NASHVILLE'
+-- 	and
+-- 	specialty_description = 'Pain Management';
 --     c. Finally, if you have not done so already, fill in any missing values for total_claim_count with 0. Hint - Google the COALESCE function.
+Select 
+	p.npi,
+	d.drug_name,
+	COALESCE(s.total_claim_count,0) as num_pres
+from prescriber as p	
+Cross join drug as d
+ left join prescription as s
+		on s.npi = p.npi 
+		and d.drug_name= s.drug_name
+Where
+	opioid_drug_flag = 'Y'
+	and
+	nppes_provider_city = 'NASHVILLE'
+	and
+	specialty_description = 'Pain Management'
+	Order by num_pres DESC;
