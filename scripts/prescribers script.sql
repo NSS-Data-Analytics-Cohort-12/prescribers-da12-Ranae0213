@@ -67,8 +67,20 @@
 -- 		end as drug_type
 	
 --   From drug
---     b. Building off of the query you wrote for part a, determine whether more was spent (total_drug_cost) on opioids or on antibiotics. Hint: Format the total costs as MONEY for easier comparision.
-
+--     b. Building off of the query you wrote for part a, determine whether more was spent (total_drug_cost) on opioids or on antibiotics. Hint: Format the total costs as MONEYfor easier comparision.
+-- Select  
+--  	Sum(prescription.total_drug_cost),
+--   Case 
+--   		when opioid_drug_flag = 'Y' then 'opiod'
+--   		when antibiotic_drug_flag = 'Y' then 'antibiotic'
+--   		else 'neither'  
+--  		end as drug_type	
+--  from drug 
+--  join prescription 
+--  using (drug_name)
+-- Group by 
+-- 	drug_type
+-- Order by Sum(prescription.total_drug_cost) DESC
 -- 5. 
 --     a. How many CBSAs are in Tennessee? **Warning:** The cbsa table contains information for all states, not just Tennessee.
 
@@ -88,6 +100,15 @@
 -- Order by 2 desc
 
 --     c. What is the largest (in terms of population) county which is not included in a CBSA? Report the county name and population.
+-- Select c.cbsaname,
+-- max(p.population) as largest_population
+-- From 
+-- 	population as p
+--  join 
+--  	cbsa as c
+-- 	on c.fipscounty= p.fipscounty
+-- Group by 1
+-- Order by 2 desc
 
 -- 6. 
 --     a. Find all rows in the prescription table where total_claims is at least 3000. Report the drug_name and the total_claim_count.
