@@ -58,12 +58,34 @@
 -- 4. 
 --     a. For each drug in the drug table, return the drug name and then a column named 'drug_type' which says 'opioid' for drugs which have opioid_drug_flag = 'Y', says 'antibiotic' for those drugs which have antibiotic_drug_flag = 'Y', and says 'neither' for all other drugs. **Hint:** You may want to use a CASE expression for this. See https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-case/ 
 
+-- Select 
+-- 	drug_name,
+--  Case 
+--  		when opioid_drug_flag = 'Y' then 'opiod'
+-- 		when antibiotic_drug_flag = 'Y' then 'antibiotic'
+-- 		else 'neither'  
+-- 		end as drug_type
+	
+--   From drug
 --     b. Building off of the query you wrote for part a, determine whether more was spent (total_drug_cost) on opioids or on antibiotics. Hint: Format the total costs as MONEY for easier comparision.
 
 -- 5. 
 --     a. How many CBSAs are in Tennessee? **Warning:** The cbsa table contains information for all states, not just Tennessee.
 
+
+
+
+
 --     b. Which cbsa has the largest combined population? Which has the smallest? Report the CBSA name and total population.
+-- Select c.cbsaname,
+-- 	max(p.population) as largest_population
+-- From 
+-- 	population as p
+-- join 
+-- 	cbsa as c
+-- on c.fipscounty= p.fipscounty
+-- Group by 1
+-- Order by 2 desc
 
 --     c. What is the largest (in terms of population) county which is not included in a CBSA? Report the county name and population.
 
